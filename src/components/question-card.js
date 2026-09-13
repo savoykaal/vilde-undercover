@@ -239,6 +239,15 @@ export function createQuestionCard({ timerSeconds = null, advanceDelay = 250, on
     get question() {
       return q;
     },
+    // Stop accepting answers, e.g. when a mission round ends mid-question.
+    freeze() {
+      stopTimer();
+      clearTimeout(advanceTimeout);
+      state = 'idle';
+      next.hidden = true;
+      keypad?.setEnabled(false);
+      choiceRow?.querySelectorAll('.choice').forEach((b) => (b.disabled = true));
+    },
     destroy() {
       stopTimer();
       clearTimeout(advanceTimeout);

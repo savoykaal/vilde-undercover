@@ -7,17 +7,22 @@ import { missionById } from './missions.js';
 import { renderHome } from './screens/home.js';
 import { renderAgentPicker, renderNewAgent } from './screens/profiles.js';
 import { renderMissionSoon } from './screens/mission-soon.js';
+import { renderVault } from './screens/mission-vault.js';
 import { renderParent } from './screens/parent.js';
 
 const store = createStore();
 const app = document.getElementById('app');
 const session = { parentUnlocked: false };
 
+const missionScreens = {
+  vault: renderVault,
+};
+
 const routes = {
   home: renderHome,
   agents: renderAgentPicker,
   'new-agent': renderNewAgent,
-  mission: renderMissionSoon,
+  mission: (ctx) => (missionScreens[ctx.params[0]] ?? renderMissionSoon)(ctx),
   parent: renderParent,
 };
 

@@ -65,7 +65,8 @@ export const strings = {
     vault: {
       title: 'Kodelåsen',
       teaser: 'Ti etager. Én nat. Hver dør har en kode.',
-      progress: (floor) => (floor ? `Rekord: etage ${floor} af 10` : 'Klar til første nat'),
+      progress: (floor) =>
+        floor >= 10 ? 'Rekord: taget er nået!' : floor ? `Rekord: etage ${floor} af 10` : 'Klar til første nat',
     },
     mole: {
       title: 'Muldvarpen',
@@ -76,6 +77,67 @@ export const strings = {
       title: 'Gadget-laboratoriet',
       teaser: 'Saml dele på Mynthes værksted, og byg dit eget agentudstyr.',
       progress: (n) => (n ? `${n} af 6 gadgets bygget` : 'Værkstedet er åbent'),
+    },
+  },
+
+  vault: {
+    briefingSpeaker: 'Janni · bureauchef',
+    briefing:
+      'Kureren har gemt den stjålne harddisk i pengeskabet på toppen af Nordlystårnet. Ti etager, ti kodelåse og én vagt med lommelygte. Mynthe sender koderne som regnestykker – du taster svaret.',
+    rules: [
+      'Rigtig kode: døren glider op, og du klatrer en etage.',
+      'Koden passer ikke: vagten går et skridt tættere på.',
+      'Nå taget, før vagten når frem til dig.',
+    ],
+    start: 'Start natten',
+    resume: (floor) => (floor ? `Fortsæt fra etage ${floor}` : 'Fortsæt natten'),
+    restart: 'Start forfra',
+    bestFloor: 'Rekord',
+    bestFloorValue: (floor) => (floor >= 10 ? 'Taget!' : floor ? `Etage ${floor}` : '–'),
+    bestTime: (level) => `Hurtigst til taget (${level})`,
+    timerLabel: (seconds) => `Stopur på runden (${seconds} sek.)`,
+    timerNone: 'På Let er der intet stopur – kun vagten.',
+    hud: {
+      pause: 'Pause',
+      floor: 'Etage',
+    },
+    startLine: 'Jeg holder øje med vagten herfra. Kør!',
+    resumeLine: 'Velkommen tilbage. Vagten har ikke opdaget noget.',
+    floorLine: (floor) => (floor >= 10 ? 'Sidste dør! Du er på taget!' : `Døren glider op. Etage ${floor}!`),
+    patrolLines: [
+      'Vagten går et skridt. Ingen panik.',
+      'Lommelygten drejer. Tag den med ro.',
+      'Skridt på trappen … du har stadig forspring.',
+      'Vagten gaber og går et skridt.',
+      'Han stopper lige og binder snørebånd. Heldigt.',
+    ],
+    patrolNear: 'Vagten er tæt på nu. Én kode ad gangen.',
+    result: {
+      roof: {
+        title: 'Taget er nået!',
+        speaker: 'soeren',
+        text: () => 'Svævebanen er spændt ud til nabohuset. Hop på – harddisken er i sikkerhed.',
+      },
+      caught: {
+        title: 'Trukket ud i sikkerhed',
+        speaker: 'frej',
+        text: (floor) =>
+          floor
+            ? `Vagten kom lidt for tæt på, så jeg hev dig ud. Du nåede etage ${floor}. Sejt klaret.`
+            : 'Vagten kom lidt for tæt på, så jeg hev dig ud. Næste nat kender du vejen.',
+      },
+      time: {
+        title: 'Natten er forbi',
+        speaker: 'soeren',
+        text: (floor) =>
+          floor ? `Solen står op, så vi kører hjem. Etage ${floor} står i logbogen.` : 'Solen står op, så vi kører hjem. I morgen nat er tårnet der stadig.',
+      },
+      floors: 'Etager',
+      best: 'Personlig rekord',
+      time: 'Tid til taget',
+      newRecord: 'Ny rekord!',
+      again: 'Ny nat',
+      home: 'Tilbage til bureauet',
     },
   },
 
