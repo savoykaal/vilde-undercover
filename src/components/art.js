@@ -33,6 +33,7 @@ export const icons = {
     '<path d="M12 3a9 9 0 0 0-9 9v1"/><path d="M21 13v-1a9 9 0 0 0-4.5-7.8"/><path d="M7 12a5 5 0 0 1 10 0c0 3-.4 5.6-1.8 8.2"/><path d="M12 12c0 3.6-.9 6.4-3 9"/><path d="M5 17c.7-1.4 1-3 1-5"/><path d="M18.4 17.6c.2-.9.4-1.9.5-3"/>',
   ),
   plus: icon('<path d="M12 5v14M5 12h14"/>'),
+  lock: icon('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
 };
 
 export const emblems = {
