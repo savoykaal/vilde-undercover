@@ -10,6 +10,7 @@ import { renderMissionSoon } from './screens/mission-soon.js';
 import { renderVault } from './screens/mission-vault.js';
 import { renderLab } from './screens/mission-lab.js';
 import { renderHq } from './screens/mission-hq.js';
+import { renderMole } from './screens/mission-mole.js';
 import { renderParent } from './screens/parent.js';
 
 const store = createStore();
@@ -18,6 +19,7 @@ const session = { parentUnlocked: false };
 
 const missionScreens = {
   hq: renderHq,
+  mole: renderMole,
   vault: renderVault,
   lab: renderLab,
 };

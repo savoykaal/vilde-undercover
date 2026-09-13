@@ -123,6 +123,46 @@ export const gadgetArt = {
   ),
 };
 
+export const SHIRT_COLORS = { roed: '#e0566b', blaa: '#4c86e8' };
+
+const bust = (shirt, extra) =>
+  art(
+    '0 0 64 64',
+    `<path d="M10 64c0-15 10-24 22-24s22 9 22 24z" fill="${SHIRT_COLORS[shirt]}" opacity=".85"/>
+     <path class="s" d="M10 64c0-15 10-24 22-24s22 9 22 24"/>
+     <circle class="panel" cx="32" cy="24" r="11"/>
+     <circle class="s" cx="32" cy="24" r="11"/>
+     ${extra}`,
+  );
+
+export const suspectArt = {
+  holm: bust(
+    'roed',
+    `<circle class="s" cx="32" cy="10" r="5"/>
+     <circle class="s" cx="27.5" cy="25" r="3.2"/><circle class="s" cx="36.5" cy="25" r="3.2"/>
+     <path class="s" d="M30.7 25h2.6"/>`,
+  ),
+  kasper: bust(
+    'blaa',
+    `<path class="panel" d="M20 22c0-9 5.5-13 12-13s12 4 12 13z"/>
+     <path class="s" d="M20 22c0-9 5.5-13 12-13s12 4 12 13zM44 22h9"/>
+     <circle class="af" cx="44" cy="54" r="2"/><path class="s dim" d="M44 56v5"/>`,
+  ),
+  nora: bust(
+    'roed',
+    `<path class="s" d="M42 17c7 3 9 12 5 19"/>
+     <path class="s" d="M20 24a12 12 0 0 1 24 0"/>
+     <rect class="panel" x="17" y="22" width="5" height="8" rx="2"/><rect class="s" x="17" y="22" width="5" height="8" rx="2"/>
+     <rect class="panel" x="42" y="22" width="5" height="8" rx="2"/><rect class="s" x="42" y="22" width="5" height="8" rx="2"/>`,
+  ),
+  ib: bust(
+    'blaa',
+    `<path class="panel" d="M19 13h26v7H19z"/>
+     <path class="s" d="M19 13h26v7H19zM17 20h15"/>
+     <path class="s" d="M16 48l32 14"/>`,
+  ),
+};
+
 export const missionArt = {
   hq: art(
     '0 0 160 110',

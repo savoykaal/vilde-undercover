@@ -6,6 +6,7 @@ import { icons, missionArt } from '../components/art.js';
 import { brandBar } from '../components/chrome.js';
 import { h, pickRandom } from '../components/dom.js';
 import { createQuestionCard } from '../components/question-card.js';
+import { createStoryScreen } from '../components/story.js';
 import { createSession, nextQuestion, recordResult } from '../engine/mastery.js';
 import {
   CHAPTERS,
@@ -29,12 +30,6 @@ const lengthsFor = (ch) => {
 
 const pauseButton = (onclick) =>
   h('button', { type: 'button', class: 'hud-pause', onclick }, h('span', { class: 'back-icon', html: icons.back }), t.pause);
-
-function refresh(node) {
-  node.classList.remove('is-fresh');
-  void node.offsetWidth; // restart the entry animation
-  node.classList.add('is-fresh');
-}
 
 export function renderHq({ store }) {
   const profile = store.activeProfile();
@@ -134,70 +129,28 @@ export function renderHq({ store }) {
   function showStory(ch, segment, index) {
     const copy = t.chapters[ch];
     const beats = copy[segment];
-    let current = index;
 
-    const letter = h('span');
-    const portrait = h('div', { class: 'portrait', 'aria-hidden': 'true' }, letter);
-    const name = h('p', { class: 'portrait-name' });
-    const bubble = h('p', { class: 'story-bubble', 'aria-live': 'polite' });
-    const counter = h('span', { class: 'story-count mono' });
-
-    function next() {
-      const res = advanceChapter(state, ch, lengthsFor(ch));
-      store.save();
-      if (res.done) return showSolved(ch);
-      if (res.segmentChanged) return runChapter(ch);
-      current = res.pos.index;
-      render();
-    }
-
-    const screen = h(
-      'div',
-      { class: 'story-screen' },
-      h(
-        'div',
-        { class: 'play-hud' },
-        pauseButton(() => showHub()),
-        h('div', { class: 'hud-stat mono' }, h('span', {}, t.chapterLabel(ch + 1)), h('b', {}, t.segmentLabel[segment])),
-        h('span', { class: 'hud-label' }, copy.title),
-      ),
-      h('div', { class: 'story-stage', onclick: next }, h('div', { class: 'story-speaker' }, portrait, name), bubble),
-      h(
-        'div',
-        { class: 'story-foot' },
-        counter,
-        h('button', { type: 'button', class: 'btn primary story-next', onclick: next }, t.next),
-        h('p', { class: 'story-hint' }, t.tapHint),
-      ),
-    );
-
-    function render() {
-      const [speaker, text] = beats[current];
-      screen.dataset.speaker = speaker;
-      letter.textContent = strings.speakers[speaker].charAt(0);
-      name.replaceChildren(h('b', {}, strings.speakers[speaker]), h('span', {}, t.roles[speaker]));
-      bubble.textContent = typeof text === 'function' ? text(profile.name) : text;
-      counter.textContent = `${current + 1} / ${beats.length}`;
-      refresh(bubble);
-      refresh(portrait);
-    }
-
-    function onKey(e) {
-      if (e.repeat || e.defaultPrevented) return;
-      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        next();
-      }
-    }
+    const story = createStoryScreen({
+      hudLabel: t.chapterLabel(ch + 1),
+      hudValue: t.segmentLabel[segment],
+      title: copy.title,
+      onPause: () => showHub(),
+      onNext: () => {
+        const res = advanceChapter(state, ch, lengthsFor(ch));
+        store.save();
+        if (res.done) return showSolved(ch);
+        if (res.segmentChanged) return runChapter(ch);
+        story.render(beats[res.pos.index], res.pos.index, beats.length, profile.name);
+      },
+    });
 
     const unlock = lockScroll();
-    show(screen, () => {
-      document.removeEventListener('keydown', onKey);
+    show(story.el, () => {
+      story.destroy();
       unlock();
     });
     document.body.classList.add('is-locked');
-    document.addEventListener('keydown', onKey);
-    render();
+    story.render(beats[index], index, beats.length, profile.name);
   }
 
   // ---------- Questions ----------
