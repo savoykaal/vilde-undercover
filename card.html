@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="da">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f14" />
+    <title>Agent Vilde — question card demo</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+      html, body { height: 100dvh; overflow: hidden; }
+      body { display: flex; flex-direction: column; }
+      .demo-bar { flex: none; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line); background: var(--panel); font-size: 14px; color: var(--muted); }
+      .demo-bar select { min-height: 40px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 6px; }
+      .demo-bar label { display: flex; gap: 6px; align-items: center; }
+      .demo-bar input[type=checkbox] { width: 20px; height: 20px; }
+      .demo-bar a { color: var(--muted); margin-left: auto; }
+      .demo-stage { flex: 1; min-height: 0; display: flex; }
+    </style>
+  </head>
+  <body>
+    <div class="demo-bar">
+      <select id="difficulty" aria-label="Difficulty">
+        <option value="let">Let</option>
+        <option value="mellem">Mellem</option>
+        <option value="svaer">Svær</option>
+      </select>
+      <label><input type="checkbox" id="timer" /> Timer</label>
+      <span id="stats" class="mono"></span>
+      <a href="test.html">engine bench →</a>
+    </div>
+    <main class="demo-stage" id="stage"></main>
+
+    <script type="module">
+      import { createStore } from './src/engine/storage.js';
+      import { timerSecondsFor } from './src/engine/facts.js';
+      import { createSession, nextQuestion, recordResult } from './src/engine/mastery.js';
+      import { createQuestionCard } from './src/components/question-card.js';
+
+      const store = createStore('agent-vilde-test');
+      const profile = store.activeProfile() ?? store.createProfile('Testagent');
+      const $ = (id) => document.getElementById(id);
+      let session;
+      let card;
+
+      function syncBar() {
+        const s = profile.settings;
+        $('difficulty').value = s.difficulty;
+        $('timer').disabled = s.difficulty === 'let';
+        $('timer').checked = timerSecondsFor(s) != null;
+        $('stats').textContent = `${profile.meta.totalAnswered} answered`;
+      }
+
+      function start() {
+        card?.destroy();
+        session = createSession();
+        card = createQuestionCard({
+          timerSeconds: timerSecondsFor(profile.settings),
+          onComplete: ({ question, firstTry, ms }) => {
+            const result = recordResult(profile, session, question, { firstTry, ms });
+            store.save();
+            syncBar();
+            return result;
+          },
+          onNext: () => card.ask(nextQuestion(profile, session)),
+        });
+        $('stage').append(card.el);
+        card.ask(nextQuestion(profile, session));
+        syncBar();
+      }
+
+      $('difficulty').onchange = (e) => {
+        profile.settings.difficulty = e.target.value;
+        store.save();
+        e.target.blur();
+        start();
+      };
+      $('timer').onchange = (e) => {
+        profile.settings.timer[profile.settings.difficulty] = e.target.checked;
+        store.save();
+        e.target.blur();
+        start();
+      };
+
+      start();
+    </script>
+  </body>
+</html>

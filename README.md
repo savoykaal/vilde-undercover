@@ -16,6 +16,7 @@ python -m http.server 8000
 
 - Game: http://localhost:8000/
 - Engine test bench: http://localhost:8000/test.html
+- Question card demo: http://localhost:8000/card.html
 
 Engine tests also run from the command line: `node tests/run.js`
 

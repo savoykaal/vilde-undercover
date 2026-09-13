@@ -34,6 +34,14 @@ export const DIFFICULTIES = {
   },
 };
 
+// Per-question timer in seconds for a profile's settings, or null for no timer.
+export function timerSecondsFor(settings) {
+  const d = DIFFICULTIES[settings?.difficulty] ?? DIFFICULTIES.let;
+  if (!d.timer) return null;
+  const on = settings?.timer?.[d.id] ?? d.timer.defaultOn;
+  return on ? d.timer.seconds : null;
+}
+
 export const factKey = (a, b) => `${a}x${b}`;
 export const parseKey = (key) => key.split('x').map(Number);
 export const twinKey = (key) => {
