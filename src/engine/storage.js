@@ -30,6 +30,7 @@ export function newProfile(name, now = Date.now()) {
   return {
     id: 'p' + now.toString(36) + Math.random().toString(36).slice(2, 6),
     name,
+    emblem: 'bolt',
     createdAt: now,
     settings: { difficulty: 'let', timer: { mellem: false, svaer: true } },
     facts: {},     // "3x7" -> mastery record, see mastery.js
@@ -95,8 +96,10 @@ export function createStore(key = STORAGE_KEY) {
     save,
     listProfiles: () => Object.values(state.profiles).sort((x, y) => x.createdAt - y.createdAt),
     activeProfile: () => state.profiles[state.activeProfileId] ?? null,
-    createProfile(name) {
+    createProfile(name, { emblem, settings } = {}) {
       const p = newProfile(name);
+      if (emblem) p.emblem = emblem;
+      if (settings) p.settings = { ...p.settings, ...settings };
       state.profiles[p.id] = p;
       state.activeProfileId = p.id;
       save();

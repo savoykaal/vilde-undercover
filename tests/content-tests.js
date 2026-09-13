@@ -69,7 +69,8 @@ const tests = {
   },
 
   'no shaming words anywhere in the copy'() {
-    const banned = /forkert|fejl|dårlig|dum|taber|skam|straf|øv/i;
+    // Whole words only, so "prøv" doesn't trip on "øv".
+    const banned = /(^|[^a-zæøå])(forkert|fejl|dårlig|dum|taber|skam|straf|øv)([^a-zæøå]|$)/i;
     for (const text of collectStrings(strings)) assert(!banned.test(text), `"${text}"`);
   },
 };

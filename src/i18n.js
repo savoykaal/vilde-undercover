@@ -4,15 +4,116 @@ export const strings = {
   appName: 'Agent Vilde',
   appTagline: 'Familiebureauet',
 
-  placeholder: {
-    heading: 'Bureauet bliver sat op',
-    body: 'Mynthe tester stadig udstyret i kælderen. Kom tilbage om lidt.',
+  brand: {
+    name: 'FAMILIEBUREAUET',
+    tagline: 'Tophemmeligt · kun for agenter',
+  },
+
+  common: {
+    back: 'Tilbage',
+    cancel: 'Annullér',
   },
 
   difficulty: {
     let: 'Let',
     mellem: 'Mellem',
     svaer: 'Svær',
+  },
+
+  difficultyInfo: {
+    let: 'Tabel 1–5 · vælg mellem fire svar',
+    mellem: 'Tabel 1–5 · tast selv koden',
+    svaer: 'Tabel 1–10 · tast selv · på tid',
+  },
+
+  emblems: {
+    bolt: 'Lyn',
+    star: 'Stjerne',
+    eye: 'Øje',
+    key: 'Nøgle',
+    diamond: 'Diamant',
+    moon: 'Måne',
+  },
+
+  home: {
+    agentCard: 'Agentkort',
+    codename: 'Kodenavn',
+    status: 'Status: aktiv',
+    switchAgent: 'Skift agent',
+    clearance: 'Sikkerhedsniveau',
+    board: 'Åbne sager',
+    caseLabel: 'SAG',
+    topSecret: 'Tophemmeligt',
+    parentButton: 'Forældre',
+    briefingSpeaker: 'Janni · bureauchef',
+    briefings: [
+      'Fire sager ligger klar. Du bestemmer selv, hvor vi starter.',
+      'Frej har spist alle kiksene i kælderen igen. Sagerne er heldigvis urørte.',
+      'Mynthe har opgraderet kodelåsene i nat. Hun siger, du klarer dem.',
+      'Søren har tanket vognen og lavet kakao. Bureauet er klar, når du er.',
+      'Lyst til ro? Muldvarpen har intet stopur. Lyst til fart? Prøv Kodelåsen.',
+      'Godt at se dig, agent. Kælderen er sikret, og kaffen er … næsten varm.',
+    ],
+  },
+
+  missions: {
+    hq: {
+      title: 'Kælder-HQ',
+      teaser: 'Opsnap en kodet besked, og følg sporet hele vejen til kureren.',
+      progress: (n) => (n ? `${n} af 5 kapitler løst` : 'Klar til første briefing'),
+    },
+    vault: {
+      title: 'Kodelåsen',
+      teaser: 'Ti etager. Én nat. Hver dør har en kode.',
+      progress: (floor) => (floor ? `Rekord: etage ${floor} af 10` : 'Klar til første nat'),
+    },
+    mole: {
+      title: 'Muldvarpen',
+      teaser: 'Nogen har byttet bureauets filer ud. Find muldvarpen – helt uden stopur.',
+      progress: (n) => (n ? `${n} af 4 kapitler opklaret` : 'Sporene venter'),
+    },
+    lab: {
+      title: 'Gadget-laboratoriet',
+      teaser: 'Saml dele på Mynthes værksted, og byg dit eget agentudstyr.',
+      progress: (n) => (n ? `${n} af 6 gadgets bygget` : 'Værkstedet er åbent'),
+    },
+  },
+
+  missionSoon: {
+    body: 'Jeg sætter lige de sidste ledninger i. Sagen åbner meget snart!',
+  },
+
+  agents: {
+    title: 'Vælg agent',
+    subtitle: 'Hvem tager den næste sag?',
+    add: 'Ny agent',
+  },
+
+  newAgent: {
+    eyebrowFirst: 'Ny rekrut',
+    titleFirst: 'Velkommen til bureauet',
+    introFirst: 'Du er netop blevet godkendt som bureauets yngste agent. Udfyld dit agentkort, så går vi i gang.',
+    title: 'Ny agent',
+    intro: 'Endnu en agent på holdet? Udfyld agentkortet.',
+    defaultName: 'Vilde',
+    nameLabel: 'Kodenavn',
+    emblemLabel: 'Emblem',
+    levelLabel: 'Sikkerhedsniveau',
+    nameMissing: 'Skriv et kodenavn først.',
+    submit: 'Aktivér agent',
+  },
+
+  parentGate: {
+    eyebrow: 'Kun for chefer',
+    title: 'Forældreadgang',
+    intro: 'Tast svaret for at fortsætte.',
+    retry: 'Ikke helt. Prøv igen.',
+    close: 'Luk',
+  },
+
+  parent: {
+    title: 'Forældreoversigt',
+    soon: 'Oversigten med fremskridt, svage tabeller og backup bygges i et senere trin.',
   },
 
   shortcut: (a, b) => `Agent-genvej: ved du ${a} × ${b}, ved du også ${b} × ${a}.`,
