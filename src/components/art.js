@@ -60,6 +60,68 @@ function vaultWindows() {
   return out;
 }
 
+const gadget = (body) => art('0 0 80 80', body);
+
+export const gadgetArt = {
+  hook: gadget(
+    `<path class="d" d="M36 48 58 22"/>
+     <path class="panel" d="M12 64l20-20 9 9-20 20z"/>
+     <path class="s" d="M12 64l20-20 9 9-20 20z"/>
+     <path class="s" d="M18 70l-6 6M26 58l5 5"/>
+     <circle class="af" cx="36" cy="49" r="2"/>
+     <path class="a" d="M60 20c1-7 7-10 12-6M60 20c-7-1-10-7-6-12M60 20c6 3 5 11 0 13"/>
+     <circle class="af" cx="60" cy="20" r="2.6"/>`,
+  ),
+  voice: gadget(
+    `<rect class="panel" x="30" y="10" width="20" height="34" rx="10"/>
+     <rect class="s" x="30" y="10" width="20" height="34" rx="10"/>
+     <path class="s dim" d="M34 20h12M34 26h12M34 32h12"/>
+     <path class="s" d="M23 36c0 9.5 7.6 17 17 17s17-7.5 17-17M40 53v12M30 68h20"/>
+     <path class="a" d="M62 22c3.5 4.5 3.5 11.5 0 16M69 16c7 8 7 20 0 28M18 22c-3.5 4.5-3.5 11.5 0 16M11 16c-7 8-7 20 0 28"/>`,
+  ),
+  shoes: gadget(
+    `<path class="panel" d="M10 58c0-8 3-18 9-23l9 6c7 4 15 6 23 8 10 2 17 6 17 12v4H10z"/>
+     <path class="s" d="M10 58c0-8 3-18 9-23l9 6c7 4 15 6 23 8 10 2 17 6 17 12v4H10z"/>
+     <path class="a" d="M8 66h62"/>
+     <path class="s" d="M28 42l4-5M35 45l4-5M42 47l4-5"/>
+     <path class="d" d="M14 74h8M32 74h8M50 74h8"/>
+     <text class="code" x="62" y="30">z</text>
+     <text class="code big" x="71" y="20">z</text>`,
+  ),
+  smoke: gadget(
+    `<circle class="soft" cx="60" cy="24" r="10"/>
+     <circle class="soft" cx="48" cy="14" r="7"/>
+     <circle class="soft" cx="71" cy="12" r="6"/>
+     <circle class="s dim" cx="60" cy="24" r="10"/>
+     <circle class="s dim" cx="48" cy="14" r="7"/>
+     <circle class="s dim" cx="71" cy="12" r="6"/>
+     <path class="panel" d="M14 72l34-34 7 7-34 34z"/>
+     <path class="s" d="M14 72l34-34 7 7-34 34z"/>
+     <path class="s" d="M14 72l-5 5"/>
+     <path class="a" d="M43 43l7 7M52 52l5 3M47 58l3 5"/>`,
+  ),
+  gloves: gadget(
+    `<path class="panel" d="M24 74V44c0-3 1.5-4 4-4V22c0-3 2-4 4-4s4 1 4 4v14V16c0-3 2-4 4-4s4 1 4 4v20V22c0-3 2-4 4-4s4 1 4 4v22l4-6c2-3 5-3 7-1s1 4 0 6l-9 15v16z"/>
+     <path class="s" d="M24 74V44c0-3 1.5-4 4-4V22c0-3 2-4 4-4s4 1 4 4v14V16c0-3 2-4 4-4s4 1 4 4v20V22c0-3 2-4 4-4s4 1 4 4v22l4-6c2-3 5-3 7-1s1 4 0 6l-9 15v16z"/>
+     <path class="a" d="M24 66h30"/>
+     <circle class="af" cx="39" cy="54" r="3"/>
+     <path class="a" d="M66 14c5 3 8 9 7 15M72 6c9 5 13 15 11 25"/>`,
+  ),
+  drone: gadget(
+    `<ellipse class="a" cx="17" cy="24" rx="13" ry="3"/>
+     <ellipse class="a" cx="63" cy="24" rx="13" ry="3"/>
+     <path class="s" d="M17 24v7M63 24v7M17 31l12 7M63 31l-12 7"/>
+     <path class="soft" d="M36 54 24 78h32L44 54z"/>
+     <rect class="panel" x="27" y="32" width="26" height="15" rx="7.5"/>
+     <rect class="s" x="27" y="32" width="26" height="15" rx="7.5"/>
+     <circle class="panel" cx="40" cy="51" r="5"/>
+     <circle class="a" cx="40" cy="51" r="5"/>
+     <circle class="af" cx="40" cy="51" r="1.8"/>
+     <circle class="af" cx="33" cy="39.5" r="1.4"/>
+     <circle class="af" cx="47" cy="39.5" r="1.4"/>`,
+  ),
+};
+
 export const missionArt = {
   hq: art(
     '0 0 160 110',

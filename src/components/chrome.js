@@ -6,9 +6,13 @@ import { h } from './dom.js';
 
 const LEVELS = ['let', 'mellem', 'svaer'];
 
-export function brandBar({ back = false, right = null } = {}) {
-  const left = back
-    ? h('a', { class: 'back-link', href: '#/home' }, h('span', { class: 'back-icon', html: icons.back }), strings.common.back)
+// back: true links to home; onBack: a function for in-screen back navigation.
+export function brandBar({ back = false, onBack = null, right = null } = {}) {
+  const backContent = [h('span', { class: 'back-icon', html: icons.back }), strings.common.back];
+  const left = onBack
+    ? h('button', { type: 'button', class: 'back-link', onclick: onBack }, backContent)
+    : back
+    ? h('a', { class: 'back-link', href: '#/home' }, backContent)
     : h(
         'div',
         { class: 'brand' },

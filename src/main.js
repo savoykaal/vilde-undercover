@@ -8,6 +8,7 @@ import { renderHome } from './screens/home.js';
 import { renderAgentPicker, renderNewAgent } from './screens/profiles.js';
 import { renderMissionSoon } from './screens/mission-soon.js';
 import { renderVault } from './screens/mission-vault.js';
+import { renderLab } from './screens/mission-lab.js';
 import { renderParent } from './screens/parent.js';
 
 const store = createStore();
@@ -16,6 +17,7 @@ const session = { parentUnlocked: false };
 
 const missionScreens = {
   vault: renderVault,
+  lab: renderLab,
 };
 
 const routes = {

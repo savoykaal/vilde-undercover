@@ -50,7 +50,7 @@ export function renderVault({ store }) {
 
     const timerRow =
       level === 'let'
-        ? h('p', { class: 'vault-note' }, t.timerNone)
+        ? h('p', { class: 'mission-note' }, t.timerNone)
         : h(
             'label',
             { class: 'toggle' },
@@ -92,7 +92,7 @@ export function renderVault({ store }) {
         brandBar({ back: true }),
         h(
           'div',
-          { class: 'vault-hero' },
+          { class: 'mission-hero' },
           h('div', { class: 'soon-art', html: missionArt.vault }),
           h(
             'div',
@@ -142,7 +142,7 @@ export function renderVault({ store }) {
     const door = h('div', { class: 'door', html: doorSvg });
     const floorValue = h('b');
     const timeValue = h('span', { class: 'hud-time mono' });
-    const ticker = h('p', { class: 'vault-ticker', 'aria-live': 'polite' });
+    const ticker = h('p', { class: 'play-ticker', 'aria-live': 'polite' });
 
     function say(speaker, text) {
       ticker.dataset.speaker = speaker;
@@ -254,15 +254,15 @@ export function renderVault({ store }) {
 
     const hud = h(
       'div',
-      { class: 'vault-hud' },
+      { class: 'play-hud' },
       h('button', { type: 'button', class: 'hud-pause', onclick: () => showIntro() }, h('span', { class: 'back-icon', html: icons.back }), t.hud.pause),
-      h('div', { class: 'hud-floor mono' }, h('span', {}, t.hud.floor), floorValue),
+      h('div', { class: 'hud-stat mono' }, h('span', {}, t.hud.floor), floorValue),
       timeValue,
     );
 
     const view = h(
       'div',
-      { class: 'vault-play' },
+      { class: 'play-screen' },
       hud,
       h(
         'div',
