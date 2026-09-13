@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Agent Vilde — engine test bench</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <style>
+      main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+      .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+      .layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
+      @media (min-width: 900px) { .layout { grid-template-columns: 1fr 1fr; } }
+      h1 { margin: 0; font-size: 20px; }
+      h2 { margin: 0 0 12px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; }
+      .question { font-family: var(--font-mono); font-size: 40px; margin: 8px 0 12px; }
+      .question .tag { font-size: 12px; color: var(--accent); vertical-align: middle; margin-left: 8px; }
+      input[type=text] { width: 7ch; min-height: 44px; padding: 0 12px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font-family: var(--font-mono); font-size: 24px; }
+      select { min-height: 44px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 8px; }
+      .choices button { min-width: 72px; font-family: var(--font-mono); font-size: 22px; }
+      .feedback { min-height: 3em; color: var(--muted); }
+      .feedback strong { color: var(--accent); }
+      .grid { display: grid; grid-template-columns: 28px repeat(10, 1fr); gap: 3px; font-family: var(--font-mono); font-size: 12px; }
+      .grid div { aspect-ratio: 1; display: grid; place-items: center; border-radius: 4px; }
+      .grid .head { color: var(--muted); }
+      .grid .cell { background: var(--unseen); transition: background var(--fast), outline-color var(--fast); outline: 2px solid transparent; }
+      .grid .b0 { background: var(--box-0); } .grid .b1 { background: var(--box-1); } .grid .b2 { background: var(--box-2); }
+      .grid .b3 { background: var(--box-3); } .grid .b4 { background: var(--box-4); }
+      .grid .mastered { outline-color: var(--accent); }
+      .grid .current { outline: 2px dashed var(--text); }
+      .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+      .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
+      .stats { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+      .log { font-family: var(--font-mono); font-size: 12px; max-height: 180px; overflow: auto; color: var(--muted); margin: 0; padding-left: 18px; }
+      .tests { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+      .tests li { padding: 2px 0; }
+      .ok { color: #4cc27a; } .fail { color: #ff6b6b; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="row" style="justify-content:space-between">
+        <h1>Engine test bench <span class="mono" style="color:var(--muted);font-size:13px">(dev only, separate storage)</span></h1>
+        <div class="row">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty">
+            <option value="let">Let (1–5, choices)</option>
+            <option value="mellem">Mellem (1–5, typed)</option>
+            <option value="svaer">Svær (1–10, typed, missing factor)</option>
+          </select>
+          <button id="new-session">New session</button>
+          <button id="reset">Reset progress</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <h2>Adaptive question</h2>
+          <div class="question" id="question"></div>
+          <div id="answer-area"></div>
+          <p class="feedback" id="feedback"></p>
+          <h2>Simulate</h2>
+          <div class="row">
+            <button data-sim="fast">Correct, fast (1.5 s)</button>
+            <button data-sim="slow">Correct, slow (6 s)</button>
+            <button data-sim="miss">Miss</button>
+            <button id="auto">Auto ×50 (80% correct)</button>
+          </div>
+          <p class="stats" id="stats"></p>
+          <h2>Last results</h2>
+          <ol class="log" id="log" reversed></ol>
+        </section>
+
+        <section class="panel">
+          <h2>Mastery grid (row a × column b)</h2>
+          <div class="grid" id="grid"></div>
+          <div class="legend">
+            <span><i style="background:var(--unseen)"></i>unseen</span>
+            <span><i style="background:var(--box-0)"></i>box 0</span>
+            <span><i style="background:var(--box-1)"></i>1</span>
+            <span><i style="background:var(--box-2)"></i>2</span>
+            <span><i style="background:var(--box-3)"></i>3</span>
+            <span><i style="background:var(--box-4)"></i>4</span>
+            <span><i style="outline:2px solid var(--accent)"></i>mastered</span>
+          </div>
+          <h2 style="margin-top:16px">Weakest facts</h2>
+          <p class="stats" id="weakest"></p>
+          <h2>Engine self-tests</h2>
+          <ul class="tests" id="tests"></ul>
+        </section>
+      </div>
+    </main>
+
+    <script type="module">
+      import { strings } from './src/i18n.js';
+      import { createStore } from './src/engine/storage.js';
+      import { skipCount } from './src/engine/facts.js';
+      import { createSession, getRecord, masteryGrid, nextQuestion, recordResult, weakestFacts } from './src/engine/mastery.js';
+      import { runEngineTests } from './tests/engine-tests.js';
+
+      const store = createStore('agent-vilde-test');
+      const profile = store.activeProfile() ?? store.createProfile('Testagent');
+      let session = createSession();
+      let question = null;
+      let attempts = 0;
+      let startedAt = 0;
+
+      const $ = (id) => document.getElementById(id);
+      $('difficulty').value = profile.settings.difficulty;
+
+      function render() {
+        const q = question;
+        const parts = q.type === 'missing'
+          ? `${q.hidden === 'a' ? '?' : q.a} × ${q.hidden === 'b' ? '?' : q.b} = ${q.product}`
+          : `${q.a} × ${q.b} = ?`;
+        $('question').innerHTML = `${parts}${q.warmup ? '<span class="tag">WARM-UP</span>' : ''}`;
+
+        const area = $('answer-area');
+        area.replaceChildren();
+        if (q.choices) {
+          const row = document.createElement('div');
+          row.className = 'row choices';
+          for (const n of q.choices) {
+            const b = document.createElement('button');
+            b.textContent = n;
+            b.onclick = () => submit(n);
+            row.append(b);
+          }
+          area.append(row);
+        } else {
+          const form = document.createElement('form');
+          form.className = 'row';
+          form.innerHTML = '<input type="text" inputmode="numeric" autocomplete="off" maxlength="3" /><button class="primary">OK</button>';
+          form.onsubmit = (e) => {
+            e.preventDefault();
+            const digits = form.elements[0].value.replace(/\D/g, '');
+            if (digits) submit(Number(digits));
+            form.elements[0].value = '';
+          };
+          area.append(form);
+          form.elements[0].focus();
+        }
+        renderGrid();
+      }
+
+      function renderGrid() {
+        const grid = $('grid');
+        grid.replaceChildren();
+        const add = (cls, text) => {
+          const d = document.createElement('div');
+          d.className = cls;
+          d.textContent = text;
+          grid.append(d);
+          return d;
+        };
+        add('head', '×');
+        for (let b = 1; b <= 10; b++) add('head', b);
+        for (const row of masteryGrid(profile)) {
+          add('head', row[0].a);
+          for (const c of row) {
+            const cls = ['cell'];
+            if (c.seen || c.box) cls.push('b' + c.box);
+            if (c.mastered) cls.push('mastered');
+            if (question && c.key === question.key) cls.push('current');
+            const cell = add(cls.join(' '), c.a * c.b);
+            const r = getRecord(profile, c.key);
+            cell.title = `${c.a}×${c.b}  box ${r.box}  ✓${r.correct} ✗${r.wrong}  streak ${r.streak}  avg ${r.avgMs} ms`;
+          }
+        }
+        const today = Object.values(profile.log).reduce((s, d) => s + d.questions, 0);
+        $('stats').textContent = `session q#${session.count} · answered total ${profile.meta.totalAnswered} (${today} logged) · retry queue [${session.retry.map((r) => r.key).join(', ')}]`;
+        $('weakest').textContent = weakestFacts(profile).map((w) => `${w.key.replace('x', '×')} ${Math.round(w.accuracy * 100)}% ${w.avgMs}ms`).join(' · ') || '—';
+      }
+
+      function ask() {
+        question = nextQuestion(profile, session);
+        attempts = 0;
+        startedAt = performance.now();
+        render();
+      }
+
+      function finish(firstTry, ms, note) {
+        const result = recordResult(profile, session, question, { firstTry, ms });
+        store.save();
+        const li = document.createElement('li');
+        li.textContent = `${question.a}×${question.b} ${firstTry ? '✓' : '✗'} ${Math.round(ms)}ms → box ${result.box}${result.newlyMastered ? ' MASTERED' : ''}${note ? ' ' + note : ''}`;
+        $('log').prepend(li);
+        $('feedback').innerHTML = result.shortcut ? `<strong>${strings.shortcut(question.a, question.b)}</strong>` : '';
+        ask();
+      }
+
+      function submit(value) {
+        const ms = performance.now() - startedAt;
+        if (value === question.answer) return finish(attempts === 0, ms);
+        attempts++;
+        const step = question.type === 'missing' ? (question.hidden === 'a' ? question.b : question.a) : question.a;
+        const times = question.type === 'missing' ? question.answer : question.b;
+        if (attempts === 1) {
+          $('feedback').textContent = `Hint: ${strings.hint.skipCount(skipCount(step, Math.min(times, 3)))}`;
+        } else {
+          $('feedback').textContent = `Answer: ${question.answer} (${skipCount(step, times).join(', ')})`;
+          setTimeout(() => finish(false, ms, '(revealed)'), 900);
+        }
+      }
+
+      document.querySelectorAll('[data-sim]').forEach((btn) => {
+        btn.onclick = () => {
+          const kind = btn.dataset.sim;
+          finish(kind !== 'miss', kind === 'slow' ? 6000 : kind === 'fast' ? 1500 : 8000, '(sim)');
+        };
+      });
+      $('auto').onclick = () => {
+        for (let i = 0; i < 50; i++) {
+          const ok = Math.random() < 0.8;
+          recordResult(profile, session, question, { firstTry: ok, ms: ok ? 1200 + Math.random() * 3000 : 8000 });
+          question = nextQuestion(profile, session);
+        }
+        store.save();
+        attempts = 0;
+        startedAt = performance.now();
+        render();
+      };
+      $('difficulty').onchange = (e) => {
+        profile.settings.difficulty = e.target.value;
+        store.save();
+        session = createSession();
+        ask();
+      };
+      $('new-session').onclick = () => {
+        session = createSession();
+        ask();
+      };
+      $('reset').onclick = () => {
+        store.resetProfileProgress(profile.id);
+        location.reload();
+      };
+
+      const results = runEngineTests();
+      $('tests').innerHTML = results
+        .map((r) => `<li class="${r.ok ? 'ok' : 'fail'}">${r.ok ? '✓' : '✗'} ${r.name}${r.ok ? '' : ` — ${r.error}`}</li>`)
+        .join('');
+
+      ask();
+    </script>
+  </body>
+</html>
