@@ -1,34 +1,28 @@
-// Hash routing between screens: #/home, #/agents, #/new-agent, #/mission/<id>, #/parent.
+// Hash routing between screens: #/home (the city map), #/play/<level>, #/tower,
+// #/workshop, #/agents, #/new-agent, #/parent.
 // Hash routes work on GitHub Pages, from a subfolder and from the single-file build.
 
 import { strings } from './i18n.js';
 import { createStore } from './engine/storage.js';
-import { missionById } from './missions.js';
-import { renderHome } from './screens/home.js';
+import { renderHome } from './screens/map.js';
 import { renderAgentPicker, renderNewAgent } from './screens/profiles.js';
-import { renderMissionSoon } from './screens/mission-soon.js';
-import { renderVault } from './screens/mission-vault.js';
-import { renderLab } from './screens/mission-lab.js';
-import { renderHq } from './screens/mission-hq.js';
-import { renderMole } from './screens/mission-mole.js';
+import { renderLevel } from './screens/level.js';
+import { renderTower } from './screens/tower.js';
+import { renderWorkshop } from './screens/workshop.js';
 import { renderParent } from './screens/parent.js';
+import { levelById } from './game/levels/index.js';
 
 const store = createStore();
 const app = document.getElementById('app');
 const session = { parentUnlocked: false };
 
-const missionScreens = {
-  hq: renderHq,
-  mole: renderMole,
-  vault: renderVault,
-  lab: renderLab,
-};
-
 const routes = {
   home: renderHome,
   agents: renderAgentPicker,
   'new-agent': renderNewAgent,
-  mission: (ctx) => (missionScreens[ctx.params[0]] ?? renderMissionSoon)(ctx),
+  play: renderLevel,
+  tower: renderTower,
+  workshop: renderWorkshop,
   parent: renderParent,
 };
 
@@ -42,8 +36,15 @@ function resolve(name, params) {
   if (!store.activeProfile()) return 'new-agent';
   if (!routes[name]) return 'home';
   if (name === 'parent' && !session.parentUnlocked) return 'home';
-  if (name === 'mission' && !missionById(params[0])) return 'home';
+  if (name === 'play' && !levelById(params[0])) return 'home';
   return name;
+}
+
+function titleFor(target, params) {
+  if (target === 'play') return `${levelById(params[0]).copy.title} · ${strings.appName}`;
+  if (target === 'tower') return `${strings.missions.vault.title} · ${strings.appName}`;
+  if (target === 'workshop') return `${strings.missions.lab.title} · ${strings.appName}`;
+  return strings.appName;
 }
 
 function route() {
@@ -57,7 +58,7 @@ function route() {
   app.replaceChildren(screen.el);
   current = screen;
   window.scrollTo(0, 0);
-  document.title = target === 'mission' ? `${strings.missions[params[0]].title} · ${strings.appName}` : strings.appName;
+  document.title = titleFor(target, params);
 }
 
 window.addEventListener('hashchange', route);

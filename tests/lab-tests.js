@@ -1,71 +1,54 @@
 import { strings } from '../src/i18n.js';
-import { GADGETS, MISSION_STEPS, addPart, advanceMission, currentGadget, labState, missionStep, selectBlueprint, unfinishedMission } from '../src/engine/lab.js';
+import { GADGETS, benchGadget, build, canBuild, freeParts, labState, perks } from '../src/engine/lab.js';
+import { addPart } from '../src/engine/progress.js';
 import { newProfile } from '../src/engine/storage.js';
+import { LEVELS } from '../src/game/levels/index.js';
+import { PART_FLOORS } from '../src/game/tower.js';
+import { World } from '../src/game/world.js';
 
 function assert(cond, message) {
   if (!cond) throw new Error(message);
 }
 
-const fresh = () => labState(newProfile('T', 0));
-
 const tests = {
-  'six gadgets need 30 parts in total, built in shelf order by default'() {
-    const state = fresh();
-    const order = [];
-    let answers = 0;
-    let result;
-    while ((result = addPart(state))) {
-      answers++;
-      if (result.completed) order.push(result.gadgetId);
-    }
-    assert(answers === 30, `${answers} parts`);
-    assert(order.join() === GADGETS.map((g) => g.id).join(), order.join());
-    assert(currentGadget(state) === null, 'nothing left on the bench');
+  'there are enough hidden parts in the game to build every gadget'() {
+    let parts = PART_FLOORS.length;
+    for (const level of Object.values(LEVELS)) parts += new World(level).partsHere.length;
+    const needed = GADGETS.reduce((sum, g) => sum + g.parts, 0);
+    assert(parts >= needed, `${parts} parts hidden, ${needed} needed`);
   },
 
-  'switching blueprint keeps the parts already collected'() {
-    const state = fresh();
-    addPart(state);
-    addPart(state);
-    selectBlueprint(state, 'drone');
-    assert(currentGadget(state).id === 'drone', 'drone on bench');
-    addPart(state);
-    selectBlueprint(state, 'hook');
-    assert(state.parts.hook === 2 && state.parts.drone === 1, JSON.stringify(state.parts));
+  'gadgets are built in shelf order once enough parts are found'() {
+    const profile = newProfile('T', 0);
+    const state = labState(profile);
+    assert(benchGadget(state).id === 'hook' && !canBuild(state, 'hook'), 'nothing to build yet');
+    for (let i = 0; i < 3; i++) addPart(profile, `p${i}`);
+    assert(canBuild(state, 'hook') && !canBuild(state, 'voice'), 'hook first');
+    assert(build(state, 'hook') && freeParts(state) === 0, 'parts spent');
+    assert(!build(state, 'hook'), 'no double build');
+    assert(benchGadget(state).id === 'voice', 'next on the bench');
   },
 
-  'a built gadget cannot go back on the bench'() {
-    const state = fresh();
-    for (let i = 0; i < 4; i++) addPart(state);
-    selectBlueprint(state, 'hook');
-    assert(currentGadget(state).id === 'voice', `bench: ${currentGadget(state).id}`);
-    assert(state.built.includes('hook'), 'hook built');
+  'the same part is never counted twice'() {
+    const profile = newProfile('T', 0);
+    assert(addPart(profile, 'c1-1') && !addPart(profile, 'c1-1'), 'duplicate part');
+    assert(labState(profile).parts.length === 1, 'one part');
   },
 
-  'micro-mission takes five steps, resumes, and stays solved on replay'() {
-    const state = fresh();
-    assert(advanceMission(state, 'hook') === null, 'unbuilt gadget has no mission');
-    for (let i = 0; i < 4; i++) addPart(state);
-    advanceMission(state, 'hook');
-    advanceMission(state, 'hook');
-    assert(missionStep(state, 'hook') === 2 && unfinishedMission(state)?.id === 'hook', 'resume at step 2');
-    let last;
-    for (let i = 2; i < MISSION_STEPS; i++) last = advanceMission(state, 'hook');
-    assert(last.solved && state.solved.includes('hook'), 'solved');
-    assert(missionStep(state, 'hook') === 0 && unfinishedMission(state) === null, 'reset for replay');
-    for (let i = 0; i < MISSION_STEPS; i++) advanceMission(state, 'hook');
-    assert(state.solved.filter((id) => id === 'hook').length === 1, 'solved listed once');
+  'built gadgets add up to perks'() {
+    const profile = newProfile('T', 0);
+    const state = labState(profile);
+    for (let i = 0; i < 40; i++) addPart(profile, `p${i}`);
+    for (const g of GADGETS) build(state, g.id);
+    const p = perks(state);
+    assert(p.towerLife === 1 && p.speedBoost > 1 && p.smoke === 1 && p.magnet > 1 && p.lightBoost > 1 && p.detectMul < 1, JSON.stringify(p));
   },
 
-  'every gadget has names for all its parts and a full micro-mission story'() {
+  'every gadget has a name, a description, a perk and a line'() {
     for (const g of GADGETS) {
       const copy = strings.lab.gadgets[g.id];
-      assert(copy?.name && copy.desc, `${g.id}: name/desc`);
-      assert(copy.parts.length === g.parts, `${g.id}: ${copy.parts.length} part names for ${g.parts} parts`);
-      const m = copy.mission;
-      assert(m.title && m.intro.text && m.outro.text, `${g.id}: mission title/intro/outro`);
-      assert(m.beats.length === MISSION_STEPS, `${g.id}: ${m.beats.length} beats`);
-      assert(m.setbacks.length >= 2, `${g.id}: setbacks`);
+      assert(copy?.name && copy.desc && copy.parts.length >= g.parts && copy.mission.outro.text, `copy for ${g.id}`);
+      assert(strings.lab.perks[g.id], `perk text for ${g.id}`);
     }
   },
 };

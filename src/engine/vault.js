@@ -1,12 +1,12 @@
-// Kodelåsen run rules, kept free of DOM so they can be tested.
+// Kodelåsen (Nordlystårnet) run rules, kept free of DOM so they can be tested.
 //
-// Ten floors. A correct code climbs one floor. A code that doesn't fit moves
-// the patrol one square closer. A run ends on the roof, when the patrol reaches
-// her, or when the round clock (Mellem/Svær, if on) runs out.
+// Ten floors. Reaching the stairs on a floor climbs one floor. A code that
+// doesn't fit, or a guard spotting her, raises the alarm one step. A run ends on
+// the roof, when the alarm is full, or when the clock (Mellem/Svær, if on) runs out.
 
 export const FLOORS = 10;
 export const TRACK_LENGTH = { let: 6, mellem: 5, svaer: 5 };
-export const ROUND_SECONDS = { let: null, mellem: 90, svaer: 60 };
+export const ROUND_SECONDS = { let: null, mellem: 300, svaer: 210 };
 
 export function vaultState(profile) {
   profile.missions.vault ??= {};
@@ -18,13 +18,13 @@ export function vaultState(profile) {
   return state;
 }
 
-export function createRun(level, clockOn) {
+export function createRun(level, clockOn, extraLife = 0) {
   const seconds = clockOn ? ROUND_SECONDS[level] : null;
   return {
     level,
     floor: 0,
     patrol: 0,
-    track: TRACK_LENGTH[level] ?? TRACK_LENGTH.let,
+    track: (TRACK_LENGTH[level] ?? TRACK_LENGTH.let) + extraLife,
     remainingMs: seconds ? seconds * 1000 : null,
     elapsedMs: 0,
     misses: 0,

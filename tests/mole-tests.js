@@ -1,35 +1,8 @@
 import { strings } from '../src/i18n.js';
-import {
-  CHAPTERS,
-  CLUES,
-  CLUE_STEPS,
-  CULPRITS,
-  SUSPECTS,
-  SUSPECT_IDS,
-  TOTAL_STEPS,
-  accuse,
-  advanceBeat,
-  chapterProgress,
-  developClue,
-  isUnlocked,
-  moleState,
-  skipClue,
-  stepsDeveloped,
-} from '../src/engine/mole.js';
-import { newProfile } from '../src/engine/storage.js';
+import { CHAPTERS, CLUES, CULPRITS, SUSPECTS, SUSPECT_IDS, clueValue, mismatch } from '../src/engine/mole.js';
 
 function assert(cond, message) {
   if (!cond) throw new Error(message);
-}
-
-const fresh = () => moleState(newProfile('T', 0));
-
-function toDeduction(state, ch) {
-  const p = chapterProgress(state, ch);
-  const intro = strings.mole.chapters[ch].intro.length;
-  for (let i = 0; i < intro; i++) advanceBeat(state, ch, intro);
-  for (let i = 0; i < TOTAL_STEPS; i++) developClue(p);
-  return p;
 }
 
 const tests = {
@@ -53,46 +26,17 @@ const tests = {
     assert(new Set(CULPRITS).size === CHAPTERS, 'a different culprit each chapter');
   },
 
-  'nine correct answers develop the wall, rotating between clues'() {
-    const state = fresh();
-    const p = chapterProgress(state, 0);
-    p.phase = 'clues';
-    const order = [];
-    for (let i = 0; i < TOTAL_STEPS; i++) order.push(developClue(p).clue);
-    assert(order.slice(0, 3).join() === 'photo,shoe,phone', order.join());
-    assert(stepsDeveloped(p) === TOTAL_STEPS && p.phase === 'deduce', `phase ${p.phase}`);
+  'the evidence in each chapter fits only its culprit'() {
+    for (let ch = 0; ch < CHAPTERS; ch++) {
+      const fits = SUSPECT_IDS.filter((id) => CLUES.every((c) => SUSPECTS[id][c] === clueValue(ch, c)));
+      assert(fits.length === 1 && fits[0] === CULPRITS[ch], `chapter ${ch + 1}: ${fits}`);
+    }
   },
 
-  'a revealed answer leaves the clue blurry and moves on'() {
-    const state = fresh();
-    const p = chapterProgress(state, 0);
-    p.phase = 'clues';
-    assert(skipClue(p) === 'shoe' && p.clues.photo === 0, 'skip photo');
-    developClue(p);
-    assert(p.clues.shoe === 1 && p.focus === 'phone', JSON.stringify(p));
-    developClue(p);
-    assert(p.focus === 'photo', 'photo comes back');
-  },
-
-  'a wrong accusation costs nothing and explains the mismatch'() {
-    const state = fresh();
-    const p = toDeduction(state, 0); // culprit: kasper
-    const res = accuse(state, 0, 'holm');
-    assert(!res.correct && p.ruledOut.includes('holm'), 'holm ruled out');
-    assert(res.mismatch.clue === 'photo' && res.mismatch.evidence === 'blaa', JSON.stringify(res.mismatch));
-    assert(p.phase === 'deduce' && stepsDeveloped(p) === TOTAL_STEPS, 'clues kept, still deducing');
-    assert(accuse(state, 0, 'kasper').correct && p.phase === 'resolution', 'kasper is right');
-  },
-
-  'the right accusation leads to resolution and unlocks the next chapter'() {
-    const state = fresh();
-    toDeduction(state, 0);
-    accuse(state, 0, CULPRITS[0]);
-    const beats = strings.mole.chapters[0].resolution.length;
-    let res;
-    for (let i = 0; i < beats; i++) res = advanceBeat(state, 0, beats);
-    assert(res.done && state.solved.includes(0) && !state.chapters[0], 'solved and cleared');
-    assert(isUnlocked(state, 1) && !isUnlocked(state, 2), 'chapter 2 open only');
+  'a wrong accusation is explained by the first clue that does not fit'() {
+    const m = mismatch(0, 'holm'); // culprit: kasper
+    assert(m.clue === 'photo' && m.evidence === 'blaa' && m.suspectValue === 'roed', JSON.stringify(m));
+    assert(mismatch(0, 'kasper') === null, 'the culprit fits everything');
   },
 
   'every chapter and suspect has complete copy'() {
@@ -109,8 +53,7 @@ const tests = {
       const s = m.suspects[id];
       assert(s?.name && s.short && s.role && s.about, `suspect ${id}`);
     }
-    for (const clue of CLUES) assert(m.clues[clue]?.name && m.mismatch[clue], `clue ${clue}`);
-    assert(CLUE_STEPS === 3, 'three steps per clue');
+    for (const clue of CLUES) assert(m.clues[clue]?.clear && m.mismatch[clue], `clue ${clue}`);
   },
 };
 

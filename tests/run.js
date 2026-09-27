@@ -2,7 +2,8 @@ import { runEngineTests } from './engine-tests.js';
 import { runContentTests } from './content-tests.js';
 import { runVaultTests } from './vault-tests.js';
 import { runLabTests } from './lab-tests.js';
-import { runHqTests } from './hq-tests.js';
+import { runLevelTests } from './level-tests.js';
+import { runTowerTests } from './tower-tests.js';
 import { runMoleTests } from './mole-tests.js';
 
 const results = [
@@ -10,7 +11,8 @@ const results = [
   ...runContentTests(),
   ...runVaultTests(),
   ...runLabTests(),
-  ...runHqTests(),
+  ...runLevelTests(),
+  ...runTowerTests(),
   ...runMoleTests(),
 ];
 for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `\n      ${r.error}`}`);
