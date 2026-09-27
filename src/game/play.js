@@ -57,6 +57,8 @@ export function playLevel({ root, level, profile, resumeStep = 0, extra = {}, fo
   const partsFound = new Set();
 
   const input = createInput(zone, { onAction: () => doAction(), onPause: () => (overlay ? null : pause()) });
+  const noGesture = (e) => e.preventDefault(); // no pinch-zoom mid-mission on iOS
+  el.addEventListener('gesturestart', noGesture);
 
   function layout() {
     renderer.resize();

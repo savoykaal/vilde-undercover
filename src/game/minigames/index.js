@@ -101,6 +101,7 @@ export function openMinigame(host, kind, params = {}, api = {}) {
 
   function onKey(e) {
     if (e.key === 'Escape' && !done) {
+      e.preventDefault();
       close();
       api.onClose?.();
     }

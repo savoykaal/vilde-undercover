@@ -10,6 +10,7 @@ body.is-playing {
   position: fixed;
   inset: 0;
   z-index: 10;
+  animation: game-in 280ms ease-out;
   overflow: hidden;
   background: #07060d;
   touch-action: none;
@@ -30,6 +31,12 @@ body.is-playing {
   position: absolute;
   inset: 0;
   touch-action: none;
+}
+
+@keyframes game-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* joystick */
@@ -250,6 +257,10 @@ body.is-playing {
 .radio[data-speaker='mynthe'] { --speaker: #8bd17c; }
 .radio[data-speaker='vilde'] { --speaker: var(--accent); }
 .radio[data-speaker='kureren'] { --speaker: #a9a4b8; }
+.radio[data-speaker='holm'],
+.radio[data-speaker='nora'] { --speaker: #e0566b; }
+.radio[data-speaker='kasper'],
+.radio[data-speaker='ib'] { --speaker: #4c86e8; }
 
 .radio-face {
   flex: none;

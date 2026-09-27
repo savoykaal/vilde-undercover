@@ -40,6 +40,17 @@ function strings(value, where) {
   else if (value === undefined) throw new Error(`Missing copy at ${where}`);
 }
 
+function checkRoute(w, id, pts) {
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1];
+    const b = pts[i];
+    assert(
+      clearWalk((x, y) => w.map.solid[y * w.map.w + x] === 1, a.x, a.y, b.x, b.y, 0.2),
+      `${id} walks through a wall between ${a.x},${a.y} and ${b.x},${b.y}`,
+    );
+  }
+}
+
 const tests = {};
 
 for (const [id, level] of Object.entries(LEVELS)) {
@@ -70,15 +81,9 @@ for (const [id, level] of Object.entries(LEVELS)) {
       if (e.type !== 'person' || e.path.length < 2) continue;
       for (const p of e.path) assert(free(Math.floor(p.x), Math.floor(p.y)), `${e.id} waypoint ${p.x},${p.y} inside a wall`);
       const pts = e.mode === 'route' || e.pingpong ? e.path : [...e.path, e.path[0]];
-      for (let i = 1; i < pts.length; i++) {
-        const a = pts[i - 1];
-        const b = pts[i];
-        assert(
-          clearWalk((x, y) => w.map.solid[y * w.map.w + x] === 1, a.x, a.y, b.x, b.y, 0.2),
-          `${e.id} walks through a wall between ${a.x},${a.y} and ${b.x},${b.y}`,
-        );
-      }
+      checkRoute(w, e.id, pts);
     }
+    for (const [name, route] of Object.entries(level.routes ?? {})) checkRoute(w, name, route.map((p) => w.point(p)));
   };
 
   tests[`${id}: steps have goals, targets and copy`] = () => {

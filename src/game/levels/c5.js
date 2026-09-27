@@ -13,6 +13,7 @@ export default {
   music: 'sneak',
   hideProp: 'barrel',
   copy: L,
+  routes: { chase: [...LOOP, LOOP[0]] },
   map: [
     '~~~~~~~~~~~~~~~~~',
     '~~~~~~~~~~~~~~~~~',
@@ -21,14 +22,14 @@ export default {
     '#*..............#',
     '#..B...v.....B..#',
     '#...............#',
-    '#.1...........2.#',
+    '#1.............2#',
     '#.CCC.CCCCC.CCC.#',
     '#.CCC.CCCCC.CCC.#',
-    '#.4...........3.#',
+    '#...............#',
     '#..............*#',
     '#.CCCC.CCC.CCCC.#',
     '#.CCCC.CCC.CCCC.#',
-    '#.....l.........#',
+    '#4....l........3#',
     '#CC.CCCC.CCCC.CC#',
     '#CC.CCCC.CCCC.CC#',
     '#...............#',
@@ -55,7 +56,7 @@ export default {
     { type: 'person', id: 'soeren', look: 'soeren', at: 's', facing: -90, vision: false, solid: true, friendly: true, lines: L.talk.soeren },
     { type: 'person', id: 'h1', look: 'henchman', path: [[1, 17], [15, 17]], pingpong: true, speed: 1.3, wait: 1.4, vision: { fov: 62, range: 5 } },
     { type: 'person', id: 'h2', look: 'henchman', path: [[15, 23], [1, 23]], pingpong: true, speed: 1.2, wait: 1.8, vision: { fov: 62, range: 5 } },
-    { type: 'person', id: 'h3', look: 'henchman', at: [8, 20], facing: 180, scan: [180, 360], scanPeriod: 7, catches: true, vision: { fov: 58, range: 4.6 } },
+    { type: 'person', id: 'h3', look: 'henchman', at: [8, 20], facing: 215, scan: [215, 325], scanPeriod: 7, catches: true, vision: { fov: 58, range: 4.6 } },
     {
       type: 'person',
       id: 'courier',
@@ -126,19 +127,23 @@ export default {
         const c = g.entity('courier');
         c.path = LOOP.map((m) => g.point(m));
         c.mode = 'flee';
-        c.speed = 2.55;
+        c.speed = 2.85;
         c.state = 'move';
-        c.wp = 0;
+        // Run for the corner furthest from her, with a head start while the lights go out.
+        const p = g.player;
+        c.wp = c.path.reduce((best, q, i, all) => (Math.hypot(q.x - p.x, q.y - p.y) > Math.hypot(all[best].x - p.x, all[best].y - p.y) ? i : best), 0);
+        if (!replay) p.stun = 1.4;
         c.friendly = true;
         for (const id of ['lamp1', 'lamp2', 'lamp3']) g.disable(id);
         g.enable('headlights');
         g.dark = 0.9;
         for (const id of ['h1', 'h2', 'h3']) g.disable(id);
         if (!replay) g.music('chase');
-        if (replay || respawn) g.place('courier', 'v', { wp: 0 });
+        if (replay || respawn) g.place('courier', 'v', { wp: c.wp });
       },
       tick(g) {
         const c = g.entity('courier');
+        if (g.player.stun > 0) return;
         if (Math.hypot(c.x - g.player.x, c.y - g.player.y) < 0.9) g.fire('gotcha');
       },
       until: 'gotcha',

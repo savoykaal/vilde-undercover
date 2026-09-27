@@ -81,7 +81,7 @@ export function createInput(zone, { onAction, onPause } = {}) {
   };
 
   function keydown(e) {
-    if (!enabled || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!enabled || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target.closest?.('.mg, .sheet')) return;
     const k = KEYMAP[e.key];
     if (k) {

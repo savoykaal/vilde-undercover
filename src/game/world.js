@@ -511,6 +511,10 @@ export class World {
 
   updatePlayer(dt, input) {
     const p = this.player;
+    if (p.stun > 0) {
+      p.stun -= dt;
+      input = null;
+    }
     const ix = input?.x ?? 0;
     const iy = input?.y ?? 0;
     const mag = Math.hypot(ix, iy);

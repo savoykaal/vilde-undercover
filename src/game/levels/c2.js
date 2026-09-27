@@ -167,7 +167,8 @@ export default {
       target: 'hat2',
       enter(g) {
         g.hud.meter = null;
-        g.after(1.6, () => {
+        g.after(3.4, () => g.panTo({ x: 7.9, y: 13.5 }, 2.6));
+        g.after(4.8, () => {
           g.confetti(7.9, 13.2, 6);
           g.sfx('whoosh');
           g.entity('hat').bag = '#8a5a2b';
