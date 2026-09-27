@@ -31,7 +31,7 @@ export default {
     '#....C.C....#',
     '#*....q.....#',
     '######b######',
-    '#...........#',
+    '#....z......#',
     '#.RRR..#TTT.#',
     '#.RRR..#TrT.#',
     '#.RRR..#...m#',
@@ -61,6 +61,7 @@ export default {
     { type: 'task', id: 'radio', at: 'r', prop: 'radio', game: 'tuner', label: 'radio' },
     { type: 'task', id: 'codebook', at: 'c', prop: 'codebook', game: 'cipher', label: 'codebook', params: { words: ['KURER', 'TORVEGADE'] } },
     { type: 'task', id: 'keypad', at: 'k', prop: 'terminal', game: 'keypad', label: 'keypad', params: { fixed: [[3, 5], [5, 6]], hint: L.keypadHint } },
+    { type: 'task', id: 'lock', at: 'z', prop: 'keypad', game: 'riddle', label: 'riddle', title: L.riddleTitle, params: { ids: ['skygge'], speaker: 'frej' }, active: false },
     { type: 'door', id: 'b', at: 'b', locked: true },
     { type: 'door', id: 'a', at: 'a' },
     { type: 'door', id: 'x', at: 'x', locked: true },
@@ -79,9 +80,22 @@ export default {
       target: 'radio',
       until: 'task:radio',
       done(g) {
-        g.open('b', { pan: true });
+        g.enable('lock');
       },
       sayDone: L.lines.radioDone,
+    },
+    {
+      goal: L.goals.riddle,
+      target: 'lock',
+      until: 'task:lock',
+      enter(g) {
+        g.enable('lock');
+      },
+      done(g) {
+        g.open('b', { pan: true });
+      },
+      say: L.lines.riddle,
+      sayDone: L.lines.riddleDone,
     },
     {
       goal: L.goals.sneak,

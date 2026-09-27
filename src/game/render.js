@@ -7,7 +7,6 @@ import { laserOn, laserWarn, visionActive } from './world.js';
 import { themeFor } from './themes.js';
 
 const TAU = Math.PI * 2;
-const DEG = Math.PI / 180;
 const HEIGHT = { wall: 0.45, shelf: 0.42, crate: 0.42, table: 0.2, car: 0.28, bench: 0.1, glass: 0.35, rail: 0.22, plant: 0 };
 
 const hash = (x, y) => {

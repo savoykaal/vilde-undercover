@@ -1,7 +1,6 @@
 // Brush the dust away with a finger to reveal a print, then read it.
 // params: { shape: 'shoe' | 'finger', result: 'Str. 44' }
 
-import { strings } from '../../i18n.js';
 import { h } from '../../components/dom.js';
 
 function shoePath(w, hgt) {
@@ -20,7 +19,6 @@ function fingerPath(w, hgt) {
 }
 
 export function dustGame(body, params, ctl) {
-  const t = strings.game.mg.dust;
   const shape = params.shape ?? 'shoe';
   const canvas = h('canvas', { class: 'dust' });
   const brushHint = h('div', { class: 'dust-brush' });

@@ -535,6 +535,7 @@ export const strings = {
       goals: {
         mynthe: 'Gå hen til Mynthe',
         radio: 'Find signalet på radioen',
+        riddle: 'Løs Frejs gådelås',
         sneak: 'Snig dig forbi Frej til Jannis kontor',
         codebook: 'Knæk koden med kodebogen',
         keypad: 'Knæk tallåsen',
@@ -546,6 +547,8 @@ export const strings = {
           ['mynthe', 'Beskeden er fuld af kode. Det er så nørdet. Jeg ELSKER det.'],
           ['mynthe', 'Kodebogen ligger på Jannis skrivebord – på den anden side af Frejs træningsbane.'],
         ],
+        riddle: [['frej', 'Træningsbanen er låst med min egen gådelås. Løs den, så må du komme ind.']],
+        riddleDone: [['frej', 'Hmpf. Den var ellers svær. Kom bare ind – hvis du tør.']],
         sneak: [
           ['frej', 'Jeg er vagten i dag. Hvis min lygte rammer dig, skylder du mig chips.'],
           ['soeren', 'Hold dig ude af lyskeglen. Bliver det for varmt, så gem dig i en kasse.'],
@@ -568,6 +571,7 @@ export const strings = {
       },
       caught: 'Fanget! Du skylder mig chips. Prøv igen – jeg lukker øjnene … næsten.',
       keypadHint: 'Tallåsen vil have to tal. Regn dem ud, og tast dem ind.',
+      riddleTitle: 'Frejs gådelås',
       done: [
         ['janni', 'Torvegade, klokken 15.30, en kurer med grå hat. Flot arbejde, agent.'],
         ['soeren', 'Pak madpakken. Vi skal ud.'],

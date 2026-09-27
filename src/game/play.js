@@ -315,6 +315,7 @@ export function playLevel({ root, level, profile, resumeStep = 0, extra = {}, fo
       world.update(dt, input.vector);
       if (world.items.size !== before) updateItems();
       handleEvents();
+      feel(dt);
       if (!hint.hidden && (Math.abs(input.vector.x) + Math.abs(input.vector.y) > 0.3)) hint.hidden = true;
     }
     fx.update(dt);
@@ -323,6 +324,26 @@ export function playLevel({ root, level, profile, resumeStep = 0, extra = {}, fo
     renderer.draw(world, fx, { t: world.t, target });
     refreshAction();
     refreshHud();
+  }
+
+  // Little things that make it feel alive: a sting when a guard starts to notice
+  // her, and dust puffs when she runs.
+  const noticed = new WeakSet();
+  let dustT = 0;
+  function feel(dt) {
+    for (const e of world.entities) {
+      if (e.type !== 'person' && e.type !== 'camera') continue;
+      if (e.meter > 0.08 && !noticed.has(e)) {
+        noticed.add(e);
+        sfx('spot');
+      } else if (e.meter === 0 && noticed.has(e)) noticed.delete(e);
+    }
+    const p = world.player;
+    dustT -= dt;
+    if (p.moving > 0.7 && dustT <= 0 && !p.hidden) {
+      dustT = 0.16;
+      fx.burst(p.x - Math.cos(p.angle) * 0.2, p.y - Math.sin(p.angle) * 0.2 + 0.15, { n: 2, colors: ['rgba(200,190,230,.35)'], speed: 0.5, life: 0.35, size: 0.06, drag: 4 });
+    }
   }
 
   function targetPos(id) {

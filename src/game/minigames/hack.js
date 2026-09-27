@@ -1,7 +1,6 @@
 // Hack the system: rotate the pipe tiles until power flows from the left
 // socket to the right one. Every puzzle is generated with a guaranteed solution.
 
-import { strings } from '../../i18n.js';
 import { h } from '../../components/dom.js';
 
 const N = 1;
