@@ -13,6 +13,10 @@ const tests = {
     assert(outcome === 'roof' && run.floor === 10, `floor ${run.floor}, outcome ${outcome}`);
   },
 
+  'the grappling hook adds one alarm step'() {
+    assert(createRun('mellem', false, 1).track === 6, 'hook perk');
+  },
+
   'patrol reaches her after the track length (6 on Let, 5 otherwise)'() {
     for (const [level, length] of [['let', 6], ['mellem', 5], ['svaer', 5]]) {
       const run = createRun(level, true);
@@ -26,10 +30,10 @@ const tests = {
     }
   },
 
-  'Let never has a round clock; Mellem 90 s and Svær 60 s when on'() {
+  'Let never has a clock; Mellem 5 min and Svær 3½ min when on'() {
     assert(createRun('let', true).remainingMs === null, 'let has clock');
-    assert(createRun('mellem', true).remainingMs === 90000, 'mellem');
-    assert(createRun('svaer', true).remainingMs === 60000, 'svaer');
+    assert(createRun('mellem', true).remainingMs === 300000, 'mellem');
+    assert(createRun('svaer', true).remainingMs === 210000, 'svaer');
     assert(createRun('svaer', false).remainingMs === null, 'svaer off');
     const run = createRun('let', false);
     assert(tick(run, 999999) === null, 'let ran out of time');
@@ -37,9 +41,9 @@ const tests = {
 
   'clock runs out and tracks elapsed time'() {
     const run = createRun('svaer', true);
-    assert(tick(run, 30000) === null, 'too early');
-    assert(tick(run, 30000) === 'time', 'should be out of time');
-    assert(run.elapsedMs === 60000 && run.remainingMs === 0, 'elapsed/remaining');
+    assert(tick(run, 150000) === null, 'too early');
+    assert(tick(run, 60000) === 'time', 'should be out of time');
+    assert(run.elapsedMs === 210000 && run.remainingMs === 0, 'elapsed/remaining');
   },
 
   'personal bests never go down'() {
